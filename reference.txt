@@ -1,0 +1,26 @@
+--Python
+https://towardsdatascience.com/getting-started-with-apache-cassandra-and-python-81e00ccf17c9
+https://stackoverflow.com/questions/33151535/using-python-cassandra-driver-in-multithread-to-write-to-db
+
+--Cassandra
+https://cassandra.apache.org/doc/latest/cql/dml.html#update
+https://docs.datastax.com/en/cql-oss/3.3/cql/cql_using/useCounters.html
+https://blog.knoldus.com/cassandra-counter-column-and-table/
+https://docs.datastax.com/en/cql-oss/3.x/cql/cql_reference/cql_data_types_c.html
+
+--Kubernetes
+https://kubernetes.io/docs/tutorials/stateful-application/cassandra/
+https://rancher.com/blog/2019/deploying-redis-cluster
+
+--Docker
+https://kb.objectrocket.com/redis/run-redis-with-docker-compose-1055
+https://gist.github.com/kadnan/2a815fe2d13504e40c9fe0bd16abfd83
+
+--Libs
+https://github.com/gocql/gocql
+https://github.com/Rhymen/go-whatsapp
+https://github.com/go-redsync/redsync
+https://github.com/go-redis/redis
+
+--commands
+docker exec -it cassandra2 cqlsh
