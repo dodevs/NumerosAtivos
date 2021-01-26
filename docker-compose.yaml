@@ -1,0 +1,60 @@
+version: '3'
+
+services:
+  cas1:
+    container_name: cassandra1
+    image: cassandra:latest
+    volumes:
+      - cassandra1-data:/var/lib/cassandra/data
+    ports:
+      - 9042:9042
+    environment:
+      - CASSANDRA_START_RPC=true
+      - CASSANDRA_CLUSTER_NAME=Cascluster
+      - CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch
+      - CASSANDRA_DC=cascenter
+    restart: always
+
+  cas2:
+    container_name: cassandra2
+    image: cassandra:latest
+    volumes:
+      - cassandra2-data:/var/lib/cassandra/data
+    ports:
+      - 9043:9042
+    command: bash -c 'sleep 60; /docker-entrypoint.sh cassandra -f'
+    depends_on: 
+      - cas1
+    environment:
+      - CASSANDRA_START_RPC=true
+      - CASSANDRA_CLUSTER_NAME=Cascluster
+      - CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch
+      - CASSANDRA_DC=cascenter
+      - CASSANDRA_SEEDS=cas1
+    restart: always
+
+  redis:
+    image: "redis:alpine"
+    command: redis-server --requirepass fh7gdGDds34
+    ports: 
+      - "6379:6379"
+    volumes: 
+      - redis-data:/var/lib/redis
+      - $PWD/redis.conf:/usr/local/etc/redis/redis.conf
+    environment: 
+      - REDIS_REPLICATION_MODE=master
+    networks: 
+      redis_net:
+        ipv4_address: 172.28.1.4
+
+volumes:
+  cassandra1-data:
+  cassandra2-data:
+  redis-data:
+
+networks: 
+  redis_net:
+    ipam: 
+      driver: default
+      config: 
+        - subnet: 172.28.0.0/16
