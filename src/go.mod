@@ -7,4 +7,5 @@ require (
 	github.com/go-redis/redis/v8 v8.4.11
 	github.com/go-redsync/redsync/v4 v4.0.4
 	github.com/gocql/gocql v0.0.0-20210126191932-9e3bb6cbd881
+	github.com/mitchellh/mapstructure v1.4.1
 )
