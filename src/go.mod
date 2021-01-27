@@ -7,5 +7,6 @@ require (
 	github.com/go-redis/redis/v8 v8.4.11
 	github.com/go-redsync/redsync/v4 v4.0.4
 	github.com/gocql/gocql v0.0.0-20210126191932-9e3bb6cbd881
-	github.com/mitchellh/mapstructure v1.4.1
 )
+
+replace github.com/Rhymen/go-whatsapp => github.com/dodevs/go-whatsapp v0.1.2-0.20210126174449-3c094ebae0ce
