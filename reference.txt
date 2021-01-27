@@ -22,6 +22,9 @@ https://github.com/Rhymen/go-whatsapp
 https://github.com/go-redsync/redsync
 https://github.com/go-redis/redis
 
+--golang
+https://gobyexample.com/waitgroups
+
 --numeros
 https://www.teleco.com.br/num_cel.asp
 
