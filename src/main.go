@@ -28,12 +28,23 @@ func generateNumber() string {
 	return number
 }
 
-func wConns() *whatsapp.Conn {
-
+func wConn(rdc *redis.Client) *whatsapp.Conn {
+	var wac *whatsapp.Conn
+	rLockAndExecute(
+		rdc,
+		"whatsapp-conn",
+		func(r *redis.Client) {
+			rGet(r, "conn", &wac)
+			if wac == nil {
+				wac = wConnect()
+				rSet(r, "conn", wac)
+			}
+		},
+	)
+	return wac
 }
 
-func wSession(c *whatsapp.Conn) {
-	rdc := rConnect()
+func wSession(rdc *redis.Client, c *whatsapp.Conn) {
 
 	rLockAndExecute(
 		rdc,
@@ -41,7 +52,7 @@ func wSession(c *whatsapp.Conn) {
 		func(r *redis.Client) {
 			session := whatsapp.Session{}
 			rGet(r, "session", &session)
-			if session.ClientId != "" && c.GetConnected() {
+			if session.ClientId != "" {
 				_, err := c.RestoreWithSession(session)
 				errorHandler("restore session", err)
 			} else {
@@ -53,13 +64,20 @@ func wSession(c *whatsapp.Conn) {
 }
 
 func main() {
-	wcon := wConnect()
-	wSession(wcon)
+	rdc := rConnect()
+	//rdc.Del(ctx, "conn")
+	wcon := wConn(rdc)
+	fmt.Printf("%v\n", wcon)
+	//wcon := wConnect()
+	wSession(rdc, wcon)
 
-	number := generateNumber()
-	for number != "" {
-		exist, _ := wcon.Exist(number)
-		fmt.Printf("%s: %s\n", number, <-exist)
-		number = generateNumber()
+	if wcon.GetLoggedIn() {
+		number := generateNumber()
+		for number != "" {
+			exist, _ := wcon.Exist(number)
+			fmt.Printf("%s: %s\n", number, <-exist)
+			number = generateNumber()
+		}
 	}
+
 }
