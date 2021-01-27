@@ -22,5 +22,8 @@ https://github.com/Rhymen/go-whatsapp
 https://github.com/go-redsync/redsync
 https://github.com/go-redis/redis
 
+--numeros
+https://www.teleco.com.br/num_cel.asp
+
 --commands
 docker exec -it cassandra2 cqlsh
