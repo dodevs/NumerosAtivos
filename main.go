@@ -3,8 +3,9 @@ package main
 import (
 	"fmt"
 	"math/rand"
+	"time"
 
-	"github.com/Rhymen/go-whatsapp"
+	whatsapp "github.com/Rhymen/go-whatsapp"
 	"github.com/go-redis/redis/v8"
 )
 
@@ -28,24 +29,7 @@ func generateNumber() string {
 	return number
 }
 
-func wConn(rdc *redis.Client) *whatsapp.Conn {
-	var wac *whatsapp.Conn
-	rLockAndExecute(
-		rdc,
-		"whatsapp-conn",
-		func(r *redis.Client) {
-			rGet(r, "conn", &wac)
-			if wac == nil {
-				wac = wConnect()
-				rSet(r, "conn", wac)
-			}
-		},
-	)
-	return wac
-}
-
 func wSession(rdc *redis.Client, c *whatsapp.Conn) {
-
 	rLockAndExecute(
 		rdc,
 		"whatsapp-session",
@@ -63,13 +47,7 @@ func wSession(rdc *redis.Client, c *whatsapp.Conn) {
 	)
 }
 
-func main() {
-	rdc := rConnect()
-	//rdc.Del(ctx, "conn")
-	wcon := wConn(rdc)
-	//wcon := wConnect()
-	wSession(rdc, wcon)
-
+func verifyNumbers(wcon *whatsapp.Conn) {
 	if wcon.GetLoggedIn() {
 		number := generateNumber()
 		for number != "" {
@@ -78,5 +56,17 @@ func main() {
 			number = generateNumber()
 		}
 	}
+}
 
+func main() {
+	rdc := rConnect()
+	//rdc.Del(ctx, "conn")
+	wcon := wConnect()
+	wSession(rdc, wcon)
+
+	for i := 0; i <= 3; i++ {
+		go verifyNumbers(wcon)
+	}
+
+	time.Sleep(10 * time.Second)
 }
