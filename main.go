@@ -67,7 +67,6 @@ func main() {
 	rdc := rConnect()
 	//rdc.Del(ctx, "conn")
 	wcon := wConn(rdc)
-	fmt.Printf("%v\n", wcon)
 	//wcon := wConnect()
 	wSession(rdc, wcon)
 

@@ -1,7 +1,7 @@
 version: '3'
 
 services:
-  cas1:
+  cassandra1:
     container_name: cassandra1
     image: cassandra:latest
     volumes:
@@ -15,7 +15,7 @@ services:
       - CASSANDRA_DC=cascenter
     restart: always
 
-  cas2:
+  cassandra2:
     container_name: cassandra2
     image: cassandra:latest
     volumes:
@@ -24,16 +24,26 @@ services:
       - 9043:9042
     command: bash -c 'sleep 60; /docker-entrypoint.sh cassandra -f'
     depends_on: 
-      - cas1
+      - cassandra1
     environment:
       - CASSANDRA_START_RPC=true
       - CASSANDRA_CLUSTER_NAME=Cascluster
       - CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch
       - CASSANDRA_DC=cascenter
-      - CASSANDRA_SEEDS=cas1
+      - CASSANDRA_SEEDS=cassandra1
     restart: always
 
+  cassandra-load-keyspace:
+    container_name: cassandra-load-keyspace
+    image: cassandra:latest
+    depends_on: 
+      - cassandra2
+    volumes: 
+      - $PWD/script.cql:/setup.cql
+    command: /bin/bash -c "sleep 60 && echo loading cassandra keyspace && cqlsh cassandra2 -f /setup.cql"
+
   redis:
+    container_name: redis
     image: "redis:alpine"
     command: redis-server --requirepass fh7gdGDds34
     ports: 
