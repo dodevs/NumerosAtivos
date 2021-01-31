@@ -1,13 +1,22 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"math/rand"
+	"sync"
 	"time"
 
 	whatsapp "github.com/Rhymen/go-whatsapp"
 	"github.com/go-redis/redis/v8"
+	"github.com/gocql/gocql"
 )
+
+var countrys = []int{55}
+var ddds = []int{27, 28}
+var startNumbers = []int{9, 8}
+
+var csession *gocql.Session
 
 func randomChoice(items []int) interface{} {
 	randomIndex := rand.Intn(len(items))
@@ -15,16 +24,14 @@ func randomChoice(items []int) interface{} {
 }
 
 func generateNumber() string {
-	countrys := []int{55}
-	ddds := []int{27, 28}
-	startNumbers := []int{9, 8}
-
-	number := fmt.Sprintf("%d%d9%d", randomChoice(countrys), randomChoice(ddds), randomChoice(startNumbers))
+	country := randomChoice(countrys)
+	ddd := randomChoice(ddds)
+	number := fmt.Sprintf("%d%d9%d", country, ddd, randomChoice(startNumbers))
 	for i := 1; i <= 7; i++ {
 		number += fmt.Sprint(rand.Intn(9))
 	}
 
-	number += "@s.whatsapp.net"
+	number += "@c.us"
 
 	return number
 }
@@ -47,12 +54,19 @@ func wSession(rdc *redis.Client, c *whatsapp.Conn) {
 	)
 }
 
-func verifyNumbers(wcon *whatsapp.Conn) {
+func verifyNumbers(wcon *whatsapp.Conn, wg *sync.WaitGroup) {
+	defer wg.Done()
+
 	if wcon.GetLoggedIn() {
 		number := generateNumber()
 		for number != "" {
-			exist, _ := wcon.Exist(number)
-			fmt.Printf("%s: %s\n", number, <-exist)
+			var exist ExistType
+			e, _ := wcon.Exist(number)
+			json.Unmarshal([]byte(<-e), &exist)
+			if exist.Status == 200 {
+				_, err := wcon.SubscribePresence(number)
+				errorHandler("get presence", err)
+			}
 			number = generateNumber()
 		}
 	}
@@ -60,13 +74,20 @@ func verifyNumbers(wcon *whatsapp.Conn) {
 
 func main() {
 	rdc := rConnect()
-	//rdc.Del(ctx, "conn")
+	//rdc.Del(ctx, "session")
 	wcon := wConnect()
 	wSession(rdc, wcon)
 
+	csession = cConnect()
+
+	wcon.AddHandler(&waHandler{wcon, uint64(time.Now().Unix())})
+
+	var wg sync.WaitGroup
+
 	for i := 0; i <= 3; i++ {
-		go verifyNumbers(wcon)
+		wg.Add(1)
+		go verifyNumbers(wcon, &wg)
 	}
 
-	time.Sleep(10 * time.Second)
+	wg.Wait()
 }
