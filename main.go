@@ -9,14 +9,11 @@ import (
 
 	whatsapp "github.com/Rhymen/go-whatsapp"
 	"github.com/go-redis/redis/v8"
-	"github.com/gocql/gocql"
 )
 
 var countrys = []int{55}
 var ddds = []int{27, 28}
 var startNumbers = []int{9, 8}
-
-var csession *gocql.Session
 
 func randomChoice(items []int) interface{} {
 	randomIndex := rand.Intn(len(items))

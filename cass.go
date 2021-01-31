@@ -13,6 +13,8 @@ type Number struct {
 	updatedAt int64
 }
 
+var csession *gocql.Session
+
 func cConnect() *gocql.Session {
 	cluster := gocql.NewCluster("127.0.0.1")
 	cluster.Keyspace = "numbersdata"
