@@ -31,8 +31,8 @@ func cConnect() *gocql.Session {
 	return session
 }
 
-func cInsert(session *gocql.Session, number Number) {
-	err := session.Query(
+func cInsert(number Number) {
+	err := csession.Query(
 		`INSERT INTO numbers (country, ddd, number, valid, lastView, updatedAt) VALUES (?,?,?,?,?,toTimestamp(NOW()))`,
 		number.country, number.ddd, number.number, number.valid, number.lastView).WithContext(ctx).Exec()
 

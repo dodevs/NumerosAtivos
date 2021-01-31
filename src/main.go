@@ -15,37 +15,63 @@ var countrys = []int{55}
 var ddds = []int{27, 28}
 var startNumbers = []int{9, 8}
 
-func randomChoice(items []int) interface{} {
+type NumberRange struct {
+	init int
+	end  int
+}
+
+var numbersMap = make(map[NumberRange][]NumberRange)
+
+var de27a28 = NumberRange{init: 27, end: 28}
+var dddKeys = []NumberRange{de27a28}
+
+func loadNumbers() {
+	numbersMap[de27a28] = []NumberRange{{init: 96, end: 99}, {init: 91, end: 94}, {init: 87, end: 88}, {init: 80, end: 83}}
+}
+
+func randomChoice(items []NumberRange) NumberRange {
 	randomIndex := rand.Intn(len(items))
 	return items[randomIndex]
 }
 
-func generateNumber() string {
-	country := randomChoice(countrys)
-	ddd := randomChoice(ddds)
-	number := fmt.Sprintf("%d%d9%d", country, ddd, randomChoice(startNumbers))
-	for i := 1; i <= 7; i++ {
+func randomRange(start int, end int) int {
+	rand.Seed(time.Now().Unix())
+	return end + rand.Intn(start-end+1)
+}
+
+func gerarNumero() string {
+	country := 55
+
+	rangeDDD := randomChoice(dddKeys)
+	ddd := randomRange(rangeDDD.init, rangeDDD.end)
+
+	rangeInicial := randomChoice(numbersMap[rangeDDD])
+	inicial := randomRange(rangeInicial.init, rangeInicial.end)
+
+	number := fmt.Sprintf("%d%d9%d", country, ddd, inicial)
+
+	for i := 1; i <= 6; i++ {
 		number += fmt.Sprint(rand.Intn(9))
 	}
 
 	number += "@c.us"
 
 	return number
+
 }
 
-func wSession(rdc *redis.Client, c *whatsapp.Conn) {
+func wSession() {
 	rLockAndExecute(
-		rdc,
 		"whatsapp-session",
 		func(r *redis.Client) {
 			session := whatsapp.Session{}
-			rGet(r, "session", &session)
+			rGet("session", &session)
 			if session.ServerToken != "" {
-				_, err := c.RestoreWithSession(session)
+				_, err := wcon.RestoreWithSession(session)
 				errorHandler("restore session", err)
 			} else {
-				session = wLogin(c)
-				rSet(r, "session", session)
+				session = wLogin()
+				rSet("session", session)
 			}
 		},
 	)
@@ -56,9 +82,7 @@ func verifyNumbers(wcon *whatsapp.Conn, wg *sync.WaitGroup) {
 
 	if wcon.GetLoggedIn() {
 
-		number := generateNumber()
-		var i int
-		i = 0
+		number := gerarNumero()
 		for number != "" {
 
 			var exist ExistType
@@ -68,37 +92,34 @@ func verifyNumbers(wcon *whatsapp.Conn, wg *sync.WaitGroup) {
 				_, err := wcon.SubscribePresence(number)
 				errorHandler("get presence", err)
 			} else if exist.Status == 599 {
-				fmt.Printf("%v\n", i)
 				break
 			}
-			i += 1
 
-			fmt.Printf("%v\n", number)
-
-			number = generateNumber()
+			number = gerarNumero()
 		}
 	}
-
 }
 
-func main() {
-	rdc := rConnect()
-	//rdc.Del(ctx, "session")
-	wcon := wConnect()
-	wSession(rdc, wcon)
-
-	csession = cConnect()
-
+func launch() {
+	wcon = wConnect()
+	wSession()
 	wcon.AddHandler(&waHandler{wcon, uint64(time.Now().Unix())})
 
 	var wg sync.WaitGroup
 
-	for i := 0; i <= 10; i++ {
+	for i := 0; i <= 0; i++ {
 		wg.Add(1)
 		go verifyNumbers(wcon, &wg)
 	}
 
 	wg.Wait()
-	fmt.Printf("%v\n", "acabou")
-	main()
+
+	launch()
+}
+
+func main() {
+	rdc = rConnect()
+	//rdc.Del(ctx, "session")
+	csession = cConnect()
+	launch()
 }

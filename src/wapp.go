@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"strings"
 	"time"
 
@@ -28,6 +27,8 @@ type waHandler struct {
 	startTime uint64
 }
 
+var wcon *whatsapp.Conn
+
 func (wh *waHandler) HandleError(err error) {
 	errorHandler("wac handldr", err)
 }
@@ -41,17 +42,15 @@ func (wh *waHandler) HandleJsonMessage(data string) {
 		json.Unmarshal([]byte(data), &msg)
 
 		if len(msg) > 1 {
-			fmt.Printf("Presence: %v\n", presence)
 
 			mapstructure.Decode(msg[1], &presence)
-			cInsert(csession, presence2number(presence))
+			cInsert(presence2number(presence))
 		}
-		fmt.Printf("Erro: %v\n", msg)
 
 	}
 }
 
-func wLogin(connection *whatsapp.Conn) whatsapp.Session {
+func wLogin() whatsapp.Session {
 	qrChan := make(chan string)
 	go func() {
 		// obj := qrcodeTerminal.New()
@@ -60,7 +59,7 @@ func wLogin(connection *whatsapp.Conn) whatsapp.Session {
 		qrcode.WriteFile(<-qrChan, qrcode.Medium, 256, "qr.png")
 
 	}()
-	sess, err := connection.Login(qrChan)
+	sess, err := wcon.Login(qrChan)
 	errorHandler("wapp login", err)
 	return sess
 }

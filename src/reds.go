@@ -6,6 +6,7 @@ import (
 	"encoding/gob"
 	"fmt"
 
+	"github.com/go-redis/redis/v8"
 	goredislib "github.com/go-redis/redis/v8"
 	"github.com/go-redsync/redsync/v4"
 	"github.com/go-redsync/redsync/v4/redis/goredis/v8"
@@ -14,6 +15,7 @@ import (
 type call func(rdc *goredislib.Client)
 
 var ctx = context.Background()
+var rdc *redis.Client
 
 func rConnect() *goredislib.Client {
 	client := goredislib.NewClient(&goredislib.Options{
@@ -24,7 +26,7 @@ func rConnect() *goredislib.Client {
 	return client
 }
 
-func rLockAndExecute(rdc *goredislib.Client, mtxname string, fn call) {
+func rLockAndExecute(mtxname string, fn call) {
 	pool := goredis.NewPool(rdc)
 	rs := redsync.New(pool)
 
@@ -38,7 +40,7 @@ func rLockAndExecute(rdc *goredislib.Client, mtxname string, fn call) {
 	errorHandler("mutex unlok", err)
 }
 
-func rSet(rdc *goredislib.Client, key string, value interface{}) {
+func rSet(key string, value interface{}) {
 	encoded := new(bytes.Buffer)
 	err := gob.NewEncoder(encoded).Encode(value)
 	errorHandler("gob encode", err)
@@ -47,7 +49,7 @@ func rSet(rdc *goredislib.Client, key string, value interface{}) {
 	errorHandler("redis hset", err)
 }
 
-func rGet(rdc *goredislib.Client, key string, dest interface{}) {
+func rGet(key string, dest interface{}) {
 	res, err := rdc.Do(ctx, "GET", key).Result()
 	errorHandler("redis get", err)
 
