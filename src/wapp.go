@@ -32,7 +32,7 @@ func (wh *waHandler) HandleError(err error) {
 }
 
 func (wh *waHandler) HandleJsonMessage(data string) {
-	if strings.Contains(data, "Msg") || strings.Contains(data, "Presence") {
+	if strings.Contains(data, "Presence") {
 		var msg []interface{}
 		var presence Presence
 

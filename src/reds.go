@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"context"
 	"encoding/gob"
+	"fmt"
+	"os"
 
 	goredislib "github.com/go-redis/redis/v8"
 	"github.com/go-redsync/redsync/v4"
@@ -16,7 +18,7 @@ var ctx = context.Background()
 
 func rConnect() *goredislib.Client {
 	client := goredislib.NewClient(&goredislib.Options{
-		Addr:     "localhost:6379",
+		Addr:     fmt.Sprintf("%s:6379", os.Getenv("redis_host")),
 		Password: "fh7gdGDds34",
 	})
 

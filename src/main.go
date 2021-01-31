@@ -40,7 +40,7 @@ func wSession(rdc *redis.Client, c *whatsapp.Conn) {
 		func(r *redis.Client) {
 			session := whatsapp.Session{}
 			rGet(r, "session", &session)
-			if session.ClientId != "" {
+			if session.ServerToken != "" {
 				_, err := c.RestoreWithSession(session)
 				errorHandler("restore session", err)
 			} else {

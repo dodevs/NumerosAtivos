@@ -1,6 +1,8 @@
 package main
 
 import (
+	"os"
+
 	gocql "github.com/gocql/gocql"
 )
 
@@ -16,7 +18,7 @@ type Number struct {
 var csession *gocql.Session
 
 func cConnect() *gocql.Session {
-	cluster := gocql.NewCluster("127.0.0.1")
+	cluster := gocql.NewCluster(os.Getenv("cassandra_host"))
 	cluster.Keyspace = "numbersdata"
 	session, err := cluster.CreateSession()
 	errorHandler("gocql create session", err)

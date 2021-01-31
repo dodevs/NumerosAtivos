@@ -14,6 +14,8 @@ services:
       - CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch
       - CASSANDRA_DC=cascenter
     restart: always
+    logging: 
+      driver: none
 
   cassandra2:
     container_name: cassandra2
@@ -32,6 +34,8 @@ services:
       - CASSANDRA_DC=cascenter
       - CASSANDRA_SEEDS=cassandra1
     restart: always
+    logging: 
+      driver: none
 
   cassandra-load-keyspace:
     container_name: cassandra-load-keyspace
@@ -40,7 +44,7 @@ services:
       - cassandra2
     volumes: 
       - $PWD/script.cql:/setup.cql
-    command: /bin/bash -c "sleep 60 && echo loading cassandra keyspace && cqlsh cassandra2 -f /setup.cql"
+    command: /bin/bash -c "sleep 60 && echo loading cassandra keyspace && cqlsh cassandra1 -f /setup.cql"
 
   redis:
     container_name: redis
@@ -53,19 +57,22 @@ services:
       - $PWD/redis.conf:/usr/local/etc/redis/redis.conf
     environment: 
       - REDIS_REPLICATION_MODE=master
-    networks: 
-      redis_net:
-        ipv4_address: 172.28.1.4
     restart: always
+    logging: 
+      driver: none
+
+  wppdiscovery:
+    container_name: wppdiscovery
+    build: ./src
+    environment: 
+      cassandra_host: cassandra2
+      redis_host: redis
+    command: /bin/sh -c "sleep 90 && /wppdiscovery"
+    depends_on: 
+      - cassandra-load-keyspace
+      - redis
 
 volumes:
   cassandra1-data:
   cassandra2-data:
   redis-data:
-
-networks: 
-  redis_net:
-    ipam: 
-      driver: default
-      config: 
-        - subnet: 172.28.0.0/16
