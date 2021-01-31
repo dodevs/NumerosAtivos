@@ -41,9 +41,9 @@ services:
     container_name: cassandra-load-keyspace
     image: cassandra:latest
     depends_on: 
-      - cassandra2
+      - cassandra1
     volumes: 
-      - $PWD/script.cql:/setup.cql
+      - ./script.cql:/setup.cql
     command: /bin/bash -c "sleep 60 && echo loading cassandra keyspace && cqlsh cassandra1 -f /setup.cql"
 
   redis:
@@ -67,7 +67,7 @@ services:
     environment: 
       cassandra_host: cassandra2
       redis_host: redis
-    command: /bin/sh -c "sleep 90 && /wppdiscovery"
+    command: /bin/sh -c "sleep 20 && /wppdiscovery"
     depends_on: 
       - cassandra-load-keyspace
       - redis

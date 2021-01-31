@@ -8,6 +8,7 @@ import (
 
 	whatsapp "github.com/Rhymen/go-whatsapp"
 	"github.com/mitchellh/mapstructure"
+	qrcode "github.com/skip2/go-qrcode"
 )
 
 type ExistType struct {
@@ -18,7 +19,7 @@ type ExistType struct {
 type Presence struct {
 	Deny bool   `json: "deny"`
 	ID   string `json: "id"`
-	T    int64  `json: "t"`
+	T    int64  `json: "t,omitempty"`
 	Type string `json: "type"`
 }
 
@@ -33,20 +34,31 @@ func (wh *waHandler) HandleError(err error) {
 
 func (wh *waHandler) HandleJsonMessage(data string) {
 	if strings.Contains(data, "Presence") {
+
 		var msg []interface{}
 		var presence Presence
 
 		json.Unmarshal([]byte(data), &msg)
-		mapstructure.Decode(msg[1], &presence)
 
-		cInsert(csession, presence2number(presence))
+		if len(msg) > 1 {
+			fmt.Printf("Presence: %v\n", presence)
+
+			mapstructure.Decode(msg[1], &presence)
+			// cInsert(csession, presence2number(presence))
+		}
+		fmt.Printf("Erro: %v\n", msg)
+
 	}
 }
 
 func wLogin(connection *whatsapp.Conn) whatsapp.Session {
 	qrChan := make(chan string)
 	go func() {
-		fmt.Printf("qr code: %v\n", <-qrChan)
+		// obj := qrcodeTerminal.New()
+		// obj.Get(<-qrChan).Print()
+
+		qrcode.WriteFile(<-qrChan, qrcode.Medium, 256, "qr.png")
+
 	}()
 	sess, err := connection.Login(qrChan)
 	errorHandler("wapp login", err)

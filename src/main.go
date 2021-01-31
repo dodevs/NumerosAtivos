@@ -11,6 +11,33 @@ import (
 	"github.com/go-redis/redis/v8"
 )
 
+type Block struct {
+	Try     func()
+	Catch   func(Exception)
+	Finally func()
+}
+
+type Exception interface{}
+
+func Throw(up Exception) {
+	panic(up)
+}
+
+func (tcf Block) Do() {
+	if tcf.Finally != nil {
+
+		defer tcf.Finally()
+	}
+	if tcf.Catch != nil {
+		defer func() {
+			if r := recover(); r != nil {
+				tcf.Catch(r)
+			}
+		}()
+	}
+	tcf.Try()
+}
+
 var countrys = []int{55}
 var ddds = []int{27, 28}
 var startNumbers = []int{9, 8}
@@ -55,8 +82,11 @@ func verifyNumbers(wcon *whatsapp.Conn, wg *sync.WaitGroup) {
 	defer wg.Done()
 
 	if wcon.GetLoggedIn() {
+
 		number := generateNumber()
+
 		for number != "" {
+
 			var exist ExistType
 			e, _ := wcon.Exist(number)
 			json.Unmarshal([]byte(<-e), &exist)
@@ -64,6 +94,8 @@ func verifyNumbers(wcon *whatsapp.Conn, wg *sync.WaitGroup) {
 				_, err := wcon.SubscribePresence(number)
 				errorHandler("get presence", err)
 			}
+			fmt.Printf("Erro: %v\n", number)
+
 			number = generateNumber()
 		}
 	}
@@ -81,7 +113,7 @@ func main() {
 
 	var wg sync.WaitGroup
 
-	for i := 0; i <= 3; i++ {
+	for i := 0; i <= 10; i++ {
 		wg.Add(1)
 		go verifyNumbers(wcon, &wg)
 	}
