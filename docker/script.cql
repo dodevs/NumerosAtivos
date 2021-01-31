@@ -12,3 +12,4 @@ CREATE TABLE numbers (
 );
 
 CREATE INDEX ON numbersdata.numbers(valid);
+CREATE INDEX ON numbersdata.numbers(ddd);
