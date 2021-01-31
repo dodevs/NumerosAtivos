@@ -57,7 +57,8 @@ func verifyNumbers(wcon *whatsapp.Conn, wg *sync.WaitGroup) {
 	if wcon.GetLoggedIn() {
 
 		number := generateNumber()
-
+		var i int
+		i = 0
 		for number != "" {
 
 			var exist ExistType
@@ -66,12 +67,18 @@ func verifyNumbers(wcon *whatsapp.Conn, wg *sync.WaitGroup) {
 			if exist.Status == 200 {
 				_, err := wcon.SubscribePresence(number)
 				errorHandler("get presence", err)
+			} else if exist.Status == 599 {
+				fmt.Printf("%v\n", i)
+				break
 			}
-			fmt.Printf("Erro: %v\n", number)
+			i += 1
+
+			fmt.Printf("%v\n", number)
 
 			number = generateNumber()
 		}
 	}
+
 }
 
 func main() {
@@ -92,4 +99,6 @@ func main() {
 	}
 
 	wg.Wait()
+	fmt.Printf("%v\n", "acabou")
+	main()
 }

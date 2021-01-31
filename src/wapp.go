@@ -44,7 +44,7 @@ func (wh *waHandler) HandleJsonMessage(data string) {
 			fmt.Printf("Presence: %v\n", presence)
 
 			mapstructure.Decode(msg[1], &presence)
-			// cInsert(csession, presence2number(presence))
+			cInsert(csession, presence2number(presence))
 		}
 		fmt.Printf("Erro: %v\n", msg)
 
