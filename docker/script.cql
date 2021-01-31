@@ -6,8 +6,8 @@ CREATE TABLE numbers (
     ddd int, 
     number text,
     valid boolean,
-    lastView DATE,
-    updatedAt DATE,
+    lastView int,
+    updatedAt timestamp,
     PRIMARY KEY((country, ddd, number), valid)
 );
 
