@@ -35,8 +35,8 @@ func randomChoice(items []NumberRange) NumberRange {
 }
 
 func randomRange(start int, end int) int {
-	rand.Seed(time.Now().Unix())
-	return end + rand.Intn(start-end+1)
+	//rand.Seed(time.Now().Unix())
+	return start + rand.Intn(end-start+1)
 }
 
 func gerarNumero() string {
@@ -91,6 +91,7 @@ func verifyNumbers(wcon *whatsapp.Conn, wg *sync.WaitGroup) {
 			if exist.Status == 200 {
 				_, err := wcon.SubscribePresence(number)
 				errorHandler("get presence", err)
+				fmt.Printf("%v\n", number)
 			} else if exist.Status == 599 {
 				break
 			}
@@ -105,9 +106,11 @@ func launch() {
 	wSession()
 	wcon.AddHandler(&waHandler{wcon, uint64(time.Now().Unix())})
 
+	loadNumbers()
+
 	var wg sync.WaitGroup
 
-	for i := 0; i <= 0; i++ {
+	for i := 0; i <= 10; i++ {
 		wg.Add(1)
 		go verifyNumbers(wcon, &wg)
 	}
