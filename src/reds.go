@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/gob"
 	"fmt"
+	"os"
 
 	"github.com/go-redis/redis/v8"
 	goredislib "github.com/go-redis/redis/v8"
@@ -19,7 +20,7 @@ var rdc *redis.Client
 
 func rConnect() *goredislib.Client {
 	client := goredislib.NewClient(&goredislib.Options{
-		Addr:     fmt.Sprintf("%s:6379", "127.0.0.1"),
+		Addr:     fmt.Sprintf("%s:6379", os.Getenv("redis_host")),
 		Password: "fh7gdGDds34",
 	})
 
