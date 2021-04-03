@@ -2,12 +2,12 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"strings"
 	"time"
 
 	whatsapp "github.com/Rhymen/go-whatsapp"
 	"github.com/mitchellh/mapstructure"
-	qrcode "github.com/skip2/go-qrcode"
 )
 
 type ExistType struct {
@@ -56,7 +56,8 @@ func wLogin() whatsapp.Session {
 		// obj := qrcodeTerminal.New()
 		// obj.Get(<-qrChan).Print()
 
-		qrcode.WriteFile(<-qrChan, qrcode.Medium, 256, "qr.png")
+		fmt.Println(<-qrChan)
+		// qrcode.WriteFile(<-qrChan, qrcode.Medium, 256, "qr.png")
 
 	}()
 	sess, err := wcon.Login(qrChan)

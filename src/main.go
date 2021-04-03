@@ -110,7 +110,7 @@ func launch() {
 
 	var wg sync.WaitGroup
 
-	for i := 0; i <= 10; i++ {
+	for i := 0; i <= 2; i++ {
 		wg.Add(1)
 		go verifyNumbers(wcon, &wg)
 	}
