@@ -17,26 +17,6 @@ services:
     logging: 
       driver: none
 
-  cassandra2:
-    container_name: cassandra2
-    image: cassandra:latest
-    volumes:
-      - cassandra2-data:/var/lib/cassandra/data
-    ports:
-      - 9043:9042
-    command: bash -c 'sleep 60; /docker-entrypoint.sh cassandra -f'
-    depends_on: 
-      - cassandra1
-    environment:
-      - CASSANDRA_START_RPC=true
-      - CASSANDRA_CLUSTER_NAME=Cascluster
-      - CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch
-      - CASSANDRA_DC=cascenter
-      - CASSANDRA_SEEDS=cassandra1
-    restart: always
-    logging: 
-      driver: none
-
   cassandra-load-keyspace:
     container_name: cassandra-load-keyspace
     image: cassandra:latest
@@ -65,7 +45,7 @@ services:
     container_name: wppdiscovery
     build: ./src
     environment: 
-      cassandra_host: cassandra2
+      cassandra_host: cassandra1
       redis_host: redis
     command: /bin/sh -c "sleep 90 && /wppdiscovery"
     depends_on: 
