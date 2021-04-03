@@ -13,6 +13,8 @@ services:
       - CASSANDRA_CLUSTER_NAME=Cascluster
       - CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch
       - CASSANDRA_DC=cascenter
+      - HEAP_NEWSIZE=128M
+      - MAX_HEAP_SIZE=512M
     restart: always
     logging: 
       driver: none
